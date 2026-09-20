@@ -334,5 +334,4 @@ docker stats
 docker inspect
 The docker inspect command provides low-level, detailed information about Docker-managed constructs (such as containers, images, volumes, networks, and configs) in a comprehensive JSON array format
 
-Assignment
-Create Jenkins JobMultiple agentscheckout, test using sonarqube,buid docker image, scan using trivy, push it to ECR & deploy as a container on docker using master slave
+docker swam

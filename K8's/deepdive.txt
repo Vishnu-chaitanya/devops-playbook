@@ -1,3 +1,15 @@
+Architecture:
+Master (Control Plane):
+1. API Server: It  is the main management point of the enDre cluster. When we interact with the Kubernetes cluster using kubectl command, we are communicaDng with the master API Server component.
+2. etcd: etcd is a distributed, consistent key-value store used to store the configuration data of the complete Kubernetes cluster.
+3. Scheduler: The Scheduler watches for unscheduled pods and binds them to nodes via the /binding pod subresource API.
+4. Controller (Control Manager): The Kubernetes Controller Manager is a daemon which runs a never-ending core control loop (also known as “controllers”). Basically, a controller watches the state of the cluster through the API Server watch feature and, when it gets noDfied, it makes the necessary changes attempting to move the current state towards the desired state.
+Node (Worker): A node is a worker machine, and this is where containers inside the pods will be launched by Kubernetes.
+1. Container Runtime:The container runDme is the underlying software that is used to run containers. In our case, it happens to be Docker. Kubernetes supports several runtimes: Docker, containerd, cri-o, rktlet etc.
+2. Kubelet: Kubelet is the agent that runs on each node in the cluster. The agent is responsible for making sure that the containers are running on the nodes as expected.
+3. Kube Proxy: This is a proxy service which runs on each node and helps in making services available to the external host. It helps in forwarding the request to correct containers and can perform primiDve load balancing.
+4. Pod: A pod is the smallest deployable unit that can be managed by Kubernetes. A pod is a logical group of one or more containers that share the same IP address and port space.
+
 Pod Definition File:
 apiVersion: v1
 kind: Pod
@@ -53,7 +65,169 @@ This is used to define the core information that is the desired state of the kub
 
 Pod Phases/Lifecycle:
 1. Pending: The pod has been accepted by kubernetes cluster but it is not yet running.
-2. Running: The pod is scheduled on a node and alll the containers have been created.
+2. Running: The pod is scheduled on a node and all the containers have been created.
 3. Succeeded/Completed: All the containers in the pod have terminated in success that is containers exited with 0 exit code
 4. Failed: All the containers in the pod have terminated but atleast one container exited with non-zero exit code 
 5. Unknown: The state could not be determined due to an error in communication with the nod where the pod was running
+
+Controllers:
+
+1. ReplicaSet/ReplicationController:
+ReplicaSet/Replication controller are used to maintain a desired number of pod replicas 
+running at all time ensuring 
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+
+Difference between replica set and replication controller:
+Both replica set and replication controller are used to manage pod replicas but replication controller is legacy and only supports equity based selectors whereas replica set is the modern successor that supports both equity based and set based selectors 
+
+Commands:
+# Scale replica count
+kubectl scale replicaset <name> --replicas=8
+# Edit a Deployed object directly
+kubectl edit <object-kind> <name>
+
+2. Deployment Controller:
+
+It is the most common controller used for deploying applications in K8’s this controller manages replica sets to ensure the desired number of pod replicas are running. With this controller we can effortlessly roll out application updates, rollback the updates without breaking the user experience.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+
+Deployment Strategies:
+This stretagy gradually replaces old pods with new pods
+maxunavalible- Maximum pods that can be deleted during update
+maxSurge- maximum pods that can be created above desired replica count
+a. RollingUpdate (Default): 
+Configuration:
+- maxUnavailable: (default: 25%)
+- maxSurge: (default: 25%)
+Example:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+
+b. Recreate: 
+deletes all old pods first then creates new pods 
+Example:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 4
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+
+Commands:
+kubectl set image deploy <name> <container-name>=<image>:<tag> --> To update the image of a deployment controller
+kubectl rollout history deploy <name> --> To check the history of the deployment controller
+kubectl rollout undo deploy <name> --> To rollback to the previous version
+kubectl rollout undo deploy <name> --to-revision=<number> --> To rollback to a specific revision
+
+3. DaemonSet Controller:
+this controller ensures that a pod replica runs on every node the kubernetes cluster if new nodes are added to the cluster deamon set automatically schedules a new pod on the node, when the nodes are removed deamon set cleans up a pod from those node
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx
+
+Typical Use Cases:
+1. Log Collection Agents: Fluentd, Filebeat, Logstash
+2. Metrics Scrappers: Prometheus, Node Exporter
+3. Security and Threat Detection: Falco etc
+
+How do we take backup of etcd
+We use etcdctl command to take snapshot
+
+what is baremetel cluster
+It means deploying the container orchestration platform directly on physical servers rather than inside traditional virtual machines (VMs) managed by a hypervisor layer.
+
+Why generally prefers odd number of nodes in a cluster what is the reason 
+Kubernetes prefers an odd number of control plane (master) or etcd nodes to maintain a majority vote (quorum) efficiently and prevent tie votes during failures.

@@ -600,3 +600,5 @@ explain a proper features of s3 storage classess and also lifecycle policies
 
 How to transfer the resources from one account to another
 
+What are the multiple aspects we will look before deploying a service in a specific region
+
