@@ -335,3 +335,4 @@ docker inspect
 The docker inspect command provides low-level, detailed information about Docker-managed constructs (such as containers, images, volumes, networks, and configs) in a comprehensive JSON array format
 
 docker swam
+Docker Swarm is a native container orchestration tool built directly into the Docker Engine.

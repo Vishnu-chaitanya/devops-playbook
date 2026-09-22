@@ -223,6 +223,28 @@ Typical Use Cases:
 2. Metrics Scrappers: Prometheus, Node Exporter
 3. Security and Threat Detection: Falco etc
 
+Services:
+kuberneties service provides a stable network endpoint to access a group of pods enabling communication within or outside the cluster
+
+Need for Kubernetes Services:
+Need for k8 Services:
+1. static IP and DNS name
+pods in kubernetes are ephemeral (short lived) that is when they die or scale there internal ip addresses and names change constantly. Services provide a stable IP and DNS name so other components can reliably communicate with pods even if they restart or reschedule 
+2. Load balancing
+When multiple pods are part of the same application the service automatically distributes incoming  traffic among the healthy pods to balance the load. 
+3. Exposing port to external traffic
+Services like node port and load balancer help exports internal ports to external users allowing access from outside the cluster 
+
+Types of Services:
+1. ClusterIP: 
+Cluster IP is the default service type in kubernetes and is used to expose applications or pods internally within the cluster enabling pod to pod communicstion.
+2. NodePort:
+This service exposes the applications on a specific port on each node enabling access from outside the cluster.
+3. LoadBalancer:
+This service provisions an external load balancer usually via cloud provider to expose the applications externally
+
+
+
 How do we take backup of etcd
 We use etcdctl command to take snapshot
 
@@ -231,3 +253,7 @@ It means deploying the container orchestration platform directly on physical ser
 
 Why generally prefers odd number of nodes in a cluster what is the reason 
 Kubernetes prefers an odd number of control plane (master) or etcd nodes to maintain a majority vote (quorum) efficiently and prevent tie votes during failures.
+
+co-run in kubernetes
+
+what options do we have in deployment controller to pull private image from docker hub or ECR

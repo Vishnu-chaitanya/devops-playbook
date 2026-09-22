@@ -602,3 +602,6 @@ How to transfer the resources from one account to another
 
 What are the multiple aspects we will look before deploying a service in a specific region
 
+Session persistance or stickyness in load balancer
+
+How S3 helps in static website hosting

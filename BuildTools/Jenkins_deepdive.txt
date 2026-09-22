@@ -272,3 +272,4 @@ Jenkins shared library
 Secret masking mechanasim
 
 Gearmen plugin 
+The Gearman Plugin for Jenkins integrates the Gearman job server to coordinate and distribute build execution across multiple Jenkins controllers and shared agent networks.
